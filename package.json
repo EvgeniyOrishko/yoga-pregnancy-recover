@@ -1,0 +1,21 @@
+{
+  "name": "yoga-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "format": "prettier --write \"{index.html,src/**/*.{html,css,js}}\"",
+    "format:check": "prettier --check \"{index.html,src/**/*.{html,css,js}}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "vite": "^7.0.0",
+    "vite-plugin-handlebars": "^2.0.0"
+  }
+}

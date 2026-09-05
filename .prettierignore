@@ -1,0 +1,9 @@
+# Vendor code - keep byte-identical to the Webflow export so it can be
+# replaced wholesale on the next export.
+src/styles/webflow.css
+public/vendor/
+
+# Generated / archived
+dist/
+node_modules/
+_original/

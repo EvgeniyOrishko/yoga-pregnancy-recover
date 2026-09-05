@@ -1,0 +1,7 @@
+/* Your overrides on top of the Webflow export.
+   Keep src/styles/webflow.css untouched so a future re-export can replace it
+   wholesale; put every change you make in here instead. */
+
+.wf-force-outline-none[tabindex="-1"]:focus {
+  outline: none;
+}
