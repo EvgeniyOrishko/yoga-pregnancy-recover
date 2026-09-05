@@ -4,6 +4,19 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1" name="viewport" />
 
+    <!-- Set the color theme before first paint so switching pages / reloading
+         never flashes the light theme first. Mirrors src/js/widgets/theme.js. -->
+    <script>
+      (function () {
+        try {
+          var theme = localStorage.getItem("yoga-theme");
+          if (theme === "dark" || theme === "blue") {
+            document.documentElement.setAttribute("data-theme", theme);
+          }
+        } catch (e) {}
+      })();
+    </script>
+
     <!-- SEO. This is the whole point of staying on plain HTML: every tag below and
          every section in <main> is in the source that crawlers fetch - nothing is
          rendered client-side. Fill these in for your own site. -->
