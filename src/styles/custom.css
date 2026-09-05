@@ -91,13 +91,32 @@ button:hover > .button-hover {
 }
 
 /* ---- journey slider (manual carousel) --------------------------------
-   Slides sit side by side; the mask scrolls them via transform. */
+   Slides sit side by side; the mask scrolls them via transform. Dragged by
+   src/js/widgets/journeySlider.js (Pointer Events) as well as the
+   arrows/dots - `touch-action: pan-y` leaves vertical page scrolling to
+   the browser and lets the widget claim horizontal movement itself. */
 .journey-slider-wrapper {
   display: flex;
+  transition: transform 0.4s ease;
+  touch-action: pan-y;
+  cursor: grab;
+}
+.journey-slider-wrapper.is-dragging {
+  transition: none;
+  cursor: grabbing;
+}
+.journey-slider-wrapper img {
+  -webkit-user-drag: none;
+  user-select: none;
 }
 .journey-slider .wg-slide {
   flex: 0 0 100%;
   transition: transform 0.5s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .journey-slider-wrapper {
+    transition: none;
+  }
 }
 
 /* ---- review video lightbox -------------------------------------------
