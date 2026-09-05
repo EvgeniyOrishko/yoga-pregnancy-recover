@@ -1,16 +1,26 @@
-// Your own scripts. jQuery and Webflow's runtime (IX2 interactions, sliders,
-// the nav, the modal) are already loaded as plain scripts before this module,
-// so `window.jQuery` and `window.Webflow` are available here.
-//
-// Webflow's runtime is initialised by the time this runs; if you add DOM that
-// carries Webflow interaction attributes, call `window.Webflow.require('ix2').init()`
-// again afterwards.
+// Every interactive behaviour on the page lives here (or in ./widgets/) -
+// there is no framework runtime and no vendor script loaded before this.
+// See README.md for what replaced what.
+import { initReveal } from "./widgets/reveal.js";
+import { initNav } from "./widgets/nav.js";
+import { initModals } from "./widgets/modal.js";
+import { initHeroSlider } from "./widgets/heroSlider.js";
+import { initJourneySlider } from "./widgets/journeySlider.js";
+import { initTabs } from "./widgets/tabs.js";
+import { initReviewLightbox } from "./widgets/reviewLightbox.js";
+import { initBgVideoControl } from "./widgets/bgVideoControl.js";
+import { initForms } from "./widgets/forms.js";
 
-// Example hook - delete when you start writing real code:
-// window.Webflow?.push(() => { ... });
+initReveal();
+initNav();
+initModals();
+initHeroSlider();
+initJourneySlider();
+initTabs();
+initReviewLightbox();
+initBgVideoControl();
+initForms();
 
 if (import.meta.hot) {
-  // Editing a partial changes index.html, which Vite full-reloads. Nothing to
-  // do here, but keeping the guard makes it obvious where to add HMR handlers.
   import.meta.hot.accept();
 }

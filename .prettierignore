@@ -1,7 +1,5 @@
-# Vendor code - keep byte-identical to the Webflow export so it can be
-# replaced wholesale on the next export.
-src/styles/webflow.css
-public/vendor/
+# Extracted/generated - minified selectors, not meant to be hand-reflowed.
+src/styles/base.css
 
 # Generated / archived
 dist/

@@ -1,7 +1,138 @@
-/* Your overrides on top of the Webflow export.
-   Keep src/styles/webflow.css untouched so a future re-export can replace it
-   wholesale; put every change you make in here instead. */
+/* Your overrides on top of the extracted base styles.
+   Keep src/styles/base.css untouched (it's a generated extraction, see its
+   own header comment); put every change you make in here instead. */
 
-.wf-force-outline-none[tabindex="-1"]:focus {
-  outline: none;
+/* ---- scroll reveal --------------------------------------------------
+   Applied by src/js/widgets/reveal.js via IntersectionObserver. Elements
+   start faded/offset and settle into place the first time they cross into
+   the viewport. */
+.reveal {
+  opacity: 0;
+  transform: translateY(60px);
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition-duration: 0.01ms;
+  }
+}
+
+/* ---- button fill-on-hover --------------------------------------------
+   .button-hover already sits translateY(101%) behind its parent's
+   overflow:hidden (see base.css); this is just the missing transition +
+   the hover rule that used to be wired up by IX2. */
+.button-hover {
+  transition: transform 0.3s ease;
+}
+a:hover > .button-hover,
+button:hover > .button-hover {
+  transform: translateY(0);
+}
+
+/* ---- mobile nav burger ------------------------------------------------
+   Base idle position/transform for the three lines comes from base.css
+   (.burger-line-top/-middle/-bottom); this is only the open (X) state. */
+.burger-line {
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
+}
+.burger.is-open .burger-line-top {
+  transform: translate(-50%) rotate(45deg);
+}
+.burger.is-open .burger-line-middle {
+  opacity: 0;
+}
+.burger.is-open .burger-line-bottom {
+  transform: translate(-50%) rotate(-45deg);
+}
+.header-navigation {
+  transition: transform 0.4s ease;
+}
+.header-navigation.is-open {
+  transform: none;
+}
+
+/* ---- modal (contact form + per-instructor bios) ----------------------
+   .modal itself already defaults to display:none (base.css); .is-open is
+   toggled by src/js/widgets/modal.js. */
+.modal.is-open {
+  display: flex;
+  opacity: 1;
+}
+.modal {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* ---- weekday tabs (timetable) -----------------------------------------
+   .wg-tab-pane defaults to display:none (base.css); .wg--tab-active shows
+   the active pane (base.css already has this rule - kept for reference). */
+
+/* ---- hero background slider (crossfade) ------------------------------ */
+.hero-background-slider .wg-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 2s ease;
+}
+.hero-background-slider .wg-slide.is-active {
+  opacity: 1;
+  position: relative;
+}
+
+/* ---- journey slider (manual carousel) --------------------------------
+   Slides sit side by side; the mask scrolls them via transform. */
+.journey-slider-wrapper {
+  display: flex;
+}
+.journey-slider .wg-slide {
+  flex: 0 0 100%;
+  transition: transform 0.5s ease;
+}
+
+/* ---- review video lightbox -------------------------------------------
+   Built fresh: Webflow generates this overlay's markup at runtime via JS,
+   there's nothing to port from the static export. */
+.review-lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 18, 22, 0.85);
+}
+.review-lightbox.is-open {
+  display: flex;
+}
+.review-lightbox-frame {
+  position: relative;
+  width: min(90vw, 500px);
+  aspect-ratio: 9 / 16;
+}
+.review-lightbox-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.review-lightbox-close {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  color: var(--white, #fff);
+  background: none;
+  border: 0;
+  font-size: 2rem;
+  cursor: pointer;
+  line-height: 1;
 }
