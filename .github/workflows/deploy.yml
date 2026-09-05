@@ -32,6 +32,13 @@ jobs:
       - run: npm run build
 
       - uses: actions/configure-pages@v5
+        with:
+          # Setting Source to "GitHub Actions" in the repo UI doesn't
+          # actually create the Pages site object on GitHub's side by
+          # itself - configure-pages then 404s looking it up. This makes it
+          # create/enable the site via the API instead of assuming it
+          # already exists.
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
