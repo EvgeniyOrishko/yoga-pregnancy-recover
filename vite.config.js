@@ -7,6 +7,12 @@ const root = dirname(fileURLToPath(import.meta.url));
 const partials = resolve(root, "src/partials");
 
 export default defineConfig({
+  // GitHub Pages serves a project repo (not a <user>.github.io repo) from
+  // /<repo-name>/, not /. Every asset reference in this project is a
+  // root-absolute path (/images/..., /fonts/..., etc.), so this has to match
+  // the repo name exactly or every image/video/font 404s once deployed.
+  base: "/yoga-pregnancy-recover/",
+
   plugins: [
     handlebars({
       // Every .html file under src/partials is registered as a partial, named
@@ -17,7 +23,7 @@ export default defineConfig({
       context: {
         site: {
           name: "Yoga DB",
-          url: "https://example.com",
+          url: "https://evgeniyorishko.github.io/yoga-pregnancy-recover",
         },
       },
     }),

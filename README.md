@@ -25,10 +25,28 @@ npm install
 | `npm run format`       | Prettier over `index.html`, partials, CSS, JS              |
 | `npm run format:check` | Fails if anything is unformatted (use in CI)               |
 
-Deploying is copying `dist/` to any static host — Netlify, Vercel, S3, nginx.
-There is no server-side runtime and no backend: the forms only run browser
-validation (see `src/js/widgets/forms.js`) — point `<form action>` at a real
-endpoint before you rely on them.
+Deploying is copying `dist/` to any static host — Netlify, Vercel, S3, nginx,
+GitHub Pages (see below). There is no server-side runtime and no backend: the
+forms only run browser validation (see `src/js/widgets/forms.js`) — point
+`<form action>` at a real endpoint before you rely on them.
+
+## Deploying to GitHub Pages
+
+`.github/workflows/deploy.yml` builds and deploys on every push to `master`
+(and can be re-run by hand from the Actions tab). One-time setup on GitHub:
+**Settings → Pages → Source → GitHub Actions**. After that, the site is at
+`https://evgeniyorishko.github.io/yoga-pregnancy-recover/`.
+
+This repo is a *project* page, not a `<user>.github.io` one, so it's served
+from a subpath rather than the domain root. `vite.config.js`'s `base:
+"/yoga-pregnancy-recover/"` is what makes every root-absolute asset reference
+in this project (`/images/...`, `/fonts/...`, the favicon, the CSS/JS bundle)
+resolve correctly under that subpath — Vite rewrites them at build time, both
+in the HTML and inside `base.css`'s `url(...)`s. If you ever rename the repo,
+update `base` (and `site.url` alongside it) to match, or the whole site 404s.
+
+If you point a custom domain at this instead (via a `CNAME` file), change
+`base` back to `"/"` first — a custom domain serves from the root.
 
 ## Layout
 
