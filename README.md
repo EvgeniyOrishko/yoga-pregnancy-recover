@@ -34,19 +34,19 @@ forms only run browser validation (see `src/js/widgets/forms.js`) — point
 
 `.github/workflows/deploy.yml` builds and deploys on every push to `master`
 (and can be re-run by hand from the Actions tab). One-time setup on GitHub:
-**Settings → Pages → Source → GitHub Actions**. After that, the site is at
-`https://evgeniyorishko.github.io/yoga-pregnancy-recover/`.
+**Settings → Pages → Source → GitHub Actions**. The site is served on the
+custom domain **makorishko.yoga** (configured in Settings → Pages → Custom
+domain, and on the DNS side at the registrar — not part of this repo).
 
-This repo is a *project* page, not a `<user>.github.io` one, so it's served
-from a subpath rather than the domain root. `vite.config.js`'s `base:
-"/yoga-pregnancy-recover/"` is what makes every root-absolute asset reference
-in this project (`/images/...`, `/fonts/...`, the favicon, the CSS/JS bundle)
-resolve correctly under that subpath — Vite rewrites them at build time, both
-in the HTML and inside `base.css`'s `url(...)`s. If you ever rename the repo,
-update `base` (and `site.url` alongside it) to match, or the whole site 404s.
-
-If you point a custom domain at this instead (via a `CNAME` file), change
-`base` back to `"/"` first — a custom domain serves from the root.
+Because it's on a custom domain, it serves from the domain root, not a
+`/<repo-name>/` subpath — `vite.config.js`'s `base: "/"` reflects that. Every
+root-absolute asset reference in this project (`/images/...`, `/fonts/...`,
+the favicon, the CSS/JS bundle) depends on `base` matching wherever the site
+is actually mounted, or everything 404s — Vite rewrites these at build time,
+both in the HTML and inside `base.css`'s `url(...)`s. If you ever drop the
+custom domain and go back to the default
+`<user>.github.io/yoga-pregnancy-recover/` URL, set `base` back to
+`"/yoga-pregnancy-recover/"` (and `site.url` alongside it).
 
 ## Layout
 
