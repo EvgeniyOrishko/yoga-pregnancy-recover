@@ -32,10 +32,31 @@ forms only run browser validation (see `src/js/widgets/forms.js`) — point
 
 ## Payments (WayForPay, test mode)
 
-The three "Купити підписку" buttons in the plans section open [WayForPay's
-checkout widget](https://wiki.wayforpay.com/en/view/852091) in **test mode**
-— `src/js/widgets/wayforpay.js`, using WayForPay's own publicly-published
-sandbox merchant (`test_merch_n1`). No cards are charged.
+The three "Купити підписку" buttons in the plans section submit a real
+`<form>` to [WayForPay's hosted checkout
+page](https://wiki.wayforpay.com/en/view/852102) in **test mode** —
+`src/js/widgets/wayforpay.js`, using WayForPay's own publicly-published
+sandbox merchant (`test_merch_n1`), for a trivial fixed 0.50 test amount
+(not yet the real plan price — see the comment at the top of that file).
+No cards are charged.
+
+This posts to WayForPay's own hosted page rather than loading their embedded
+`pay-widget.js` modal, and that's deliberate: Apple Pay / Google Pay showed
+up nowhere in the widget on a real iPhone. `paymentSystems` — the parameter
+that lists which methods to offer (`card;applePay;googlePay`) — is only
+documented for this hosted-page flow, and Apple Pay's own JS API needs to run
+in the top-level document, which an iframe-based widget modal isn't. The form
+sends `paymentSystems: "card;applePay;googlePay"` explicitly. Whether they
+actually appear still depends on the visiting device (Safari + Apple Wallet,
+or Chrome + a saved Google Pay card) and on WayForPay having them enabled for
+the merchant account — nothing enforceable from static site code, and
+undocumented for the `test_merch_n1` sandbox specifically.
+
+Because checkout is now a real page you leave and WayForPay redirects back
+from (`returnUrl`), there's no live approved/declined/pending callback the
+way the widget had one — confirming the *actual* payment outcome needs a
+server-side `serviceUrl` webhook, which this static site doesn't have. The
+page only shows "you're back from checkout," not a real status.
 
 This is the one place in the project where a "secret" is deliberately shipped
 to the browser: WayForPay's checkout requires an HMAC-MD5 `merchantSignature`
@@ -52,9 +73,9 @@ MD5 isn't in the browser's native `SubtleCrypto` (it only implements the SHA
 family), so `wayforpay.js` vendors a small MD5/HMAC-MD5 implementation —
 verified byte-for-byte against Node's `crypto` module (empty/short/long/
 multi-byte-UTF8 inputs, plus WayForPay's own worked example) before it
-shipped, and again end-to-end against a stubbed widget script in a real
-browser (every signature the page actually produces independently
-recomputed and matched).
+shipped, and again end-to-end in a real browser against the actual `<form>`
+POST body the page produces (every field present, signature independently
+recomputed and matched, `paymentSystems`/amount/`returnUrl` all correct).
 
 ## Deploying to GitHub Pages
 

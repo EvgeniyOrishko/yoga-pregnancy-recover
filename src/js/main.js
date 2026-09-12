@@ -1,7 +1,8 @@
 // Every interactive behaviour on the page lives here (or in ./widgets/) -
-// there is no framework runtime. The one vendor script loaded before this
-// is WayForPay's own required checkout widget (index.html) - see
-// widgets/wayforpay.js. See README.md for what replaced what.
+// there is no framework runtime and no vendor script loaded before this
+// (the WayForPay pay buttons submit a real <form> to WayForPay's own hosted
+// checkout page instead of loading their embedded widget - see
+// widgets/wayforpay.js for why). See README.md for what replaced what.
 import { initTheme } from "./widgets/theme.js";
 import { initReveal } from "./widgets/reveal.js";
 import { initNav } from "./widgets/nav.js";

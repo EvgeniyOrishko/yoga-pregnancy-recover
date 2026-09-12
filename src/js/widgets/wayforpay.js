@@ -1,7 +1,25 @@
 // WayForPay test-mode "Buy" buttons (the plan cards' "Купити підписку" CTAs
 // were dead `href="#"` links before this - see src/partials/sections/plans.html).
-// Docs: https://wiki.wayforpay.com/en/view/852091 (widget), /en/view/852102
-// (merchantSignature algorithm), /en/view/852472 (sandbox credentials).
+//
+// This posts to WayForPay's hosted "Purchase" checkout page rather than
+// using their embedded pay-widget.js modal. That switch is deliberate, not
+// a stylistic choice: Apple Pay / Google Pay showed up nowhere in the
+// widget on a real iPhone. Two things point at the widget being the wrong
+// surface for that rather than a config problem here:
+//   - `paymentSystems` (the parameter that lists which methods to offer -
+//     card;applePay;googlePay;...) is documented only for this hosted-page
+//     "Purchase" flow (https://wiki.wayforpay.com/en/view/852102), never for
+//     pay-widget.js (https://wiki.wayforpay.com/en/view/852091) - it may not
+//     exist for the widget at all.
+//   - Apple Pay's own JS API (ApplePaySession, which WayForPay's checkout UI
+//     uses under the hood) needs the page running it to be the top-level
+//     document; pay-widget.js renders its checkout inside an iframe/modal,
+//     which is exactly the situation Apple Pay is commonly unavailable in.
+// A real top-level navigation to WayForPay's own hosted page sidesteps both.
+//
+// Docs: https://wiki.wayforpay.com/en/view/852102 (this endpoint, its fields,
+// merchantSignature algorithm), /en/view/852472 (sandbox credentials),
+// help.wayforpay.com/en/apple-pay and /en/google-pay (merchant enablement).
 //
 // IMPORTANT - this only works client-side because these are WayForPay's own
 // publicly-published sandbox credentials (anyone testing their integration
@@ -10,12 +28,19 @@
 // HMAC computed client-side can be read out of the page and used to forge
 // signed requests. Going live means moving `buildSignature` to a server
 // endpoint that takes the order details and returns just the signature -
-// this file's shape (config in, signature out) is written so that swap is a
-// single function call, not a rewrite.
+// this file's shape (order fields in, signature out) is written so that
+// swap is a small function call, not a rewrite.
 const TEST_MERCHANT = {
   merchantAccount: "test_merch_n1",
   merchantSecretKey: "flk3409refn54t54t*FNJRET",
 };
+const CHECKOUT_URL = "https://secure.wayforpay.com/pay";
+
+// Deliberately trivial for now - the actual ask that led to this file's
+// current shape was "does Apple Pay show up at all", not "test the real
+// plan price". Swap for `button.dataset.wfpAmount` (the real plan price -
+// still present in the markup) once that's confirmed working.
+const TEST_AMOUNT = "0.50";
 
 // --- HMAC-MD5 -----------------------------------------------------------
 // WayForPay signs with HMAC-MD5, which the browser's native SubtleCrypto
@@ -126,7 +151,10 @@ function concatBytes(a, b) {
   return out;
 }
 
-// --- WayForPay request building -----------------------------------------
+// --- WayForPay request building -------------------------------------------
+// Same field order/algorithm as the widget used (unchanged, still verified):
+// HMAC-MD5 of merchantAccount;merchantDomainName;orderReference;orderDate;
+// amount;currency;productName;productCount;productPrice, hex-encoded.
 function buildSignature({
   merchantDomainName,
   orderReference,
@@ -151,15 +179,23 @@ function buildSignature({
   return hmacMd5(fields.join(";"), TEST_MERCHANT.merchantSecretKey);
 }
 
+function addField(form, name, value) {
+  const input = document.createElement("input");
+  input.type = "hidden";
+  input.name = name;
+  input.value = value;
+  form.appendChild(input);
+}
+
 function payWith(button) {
   const productName = button.dataset.wfpProduct;
-  const amount = button.dataset.wfpAmount;
+  const amount = TEST_AMOUNT;
   const currency = button.dataset.wfpCurrency || "USD";
   const merchantDomainName = location.hostname || "localhost";
   const orderReference = `test-${Date.now()}`;
-  const orderDate = Math.floor(Date.now() / 1000);
+  const orderDate = String(Math.floor(Date.now() / 1000));
 
-  const fields = {
+  const signature = buildSignature({
     merchantDomainName,
     orderReference,
     orderDate,
@@ -168,63 +204,75 @@ function payWith(button) {
     productName,
     productCount: "1",
     productPrice: amount,
-  };
+  });
 
-  const wayforpay = new window.Wayforpay();
-  wayforpay.run(
-    {
-      merchantAccount: TEST_MERCHANT.merchantAccount,
-      merchantDomainName,
-      authorizationType: "SimpleSignature",
-      merchantSignature: buildSignature(fields),
-      orderReference,
-      orderDate: String(orderDate),
-      amount: String(amount),
-      currency,
-      productName,
-      productPrice: String(amount),
-      productCount: "1",
-      clientFirstName: "Test",
-      clientLastName: "Buyer",
-      clientEmail: "test@example.com",
-      clientPhone: "380000000000",
-      language: "UA",
-    },
-    (response) => setStatus(button, "approved", response),
-    (response) => setStatus(button, "declined", response),
-    (response) => setStatus(button, "pending", response),
-  );
+  // So the page can show a "we're back from checkout" note - WayForPay
+  // doesn't document what it appends to returnUrl, and confirming the real
+  // outcome needs the serviceUrl server-side webhook, which this static
+  // site doesn't have. Don't claim a status this can't actually verify.
+  sessionStorage.setItem("wfp-pending-order", JSON.stringify({ orderReference, productName }));
+
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = CHECKOUT_URL;
+  form.acceptCharset = "utf-8";
+
+  addField(form, "merchantAccount", TEST_MERCHANT.merchantAccount);
+  addField(form, "merchantAuthType", "SimpleSignature");
+  addField(form, "merchantDomainName", merchantDomainName);
+  addField(form, "merchantTransactionSecureType", "AUTO");
+  addField(form, "merchantSignature", signature);
+  addField(form, "orderReference", orderReference);
+  addField(form, "orderDate", orderDate);
+  addField(form, "amount", amount);
+  addField(form, "currency", currency);
+  addField(form, "productName[]", productName);
+  addField(form, "productPrice[]", amount);
+  addField(form, "productCount[]", "1");
+  addField(form, "clientFirstName", "Test");
+  addField(form, "clientLastName", "Buyer");
+  addField(form, "clientEmail", "test@example.com");
+  addField(form, "clientPhone", "380000000000");
+  addField(form, "language", "UA");
+  // Explicit rather than relying on "defaults to everything enabled for the
+  // merchant" - this is exactly the parameter this whole switch was about.
+  addField(form, "paymentSystems", "card;applePay;googlePay");
+  addField(form, "returnUrl", `${location.origin}${location.pathname}#Memberships`);
+
+  document.body.appendChild(form);
+  form.submit();
 }
 
-function setStatus(button, kind, response) {
-  const labels = {
-    approved: "Оплату test-режиму підтверджено ✓",
-    declined: "Тестову оплату відхилено",
-    pending: "Тестова оплата обробляється…",
-  };
+function showReturnStatus() {
+  const raw = sessionStorage.getItem("wfp-pending-order");
+  if (!raw) return;
+  sessionStorage.removeItem("wfp-pending-order");
+
+  let pending;
+  try {
+    pending = JSON.parse(raw);
+  } catch {
+    return;
+  }
+  const button = Array.from(document.querySelectorAll("[data-wfp-pay]")).find(
+    (b) => b.dataset.wfpProduct === pending.productName,
+  );
+  if (!button) return;
+
   let status = button.parentElement.querySelector(".wfp-status");
   if (!status) {
     status = document.createElement("p");
     status.className = "wfp-status";
     button.insertAdjacentElement("afterend", status);
   }
-  status.textContent = labels[kind] ?? kind;
-  status.dataset.wfpKind = kind;
-  // eslint-disable-next-line no-console
-  console.log("[wayforpay:test]", kind, response);
+  status.dataset.wfpKind = "pending";
+  status.textContent =
+    "Повернулись із тестової оплати WayForPay. Реальний фінальний статус потребує serviceUrl-вебхука на бекенді - його тут немає, це лише підтвердження, що чекаут відкрився.";
 }
 
 export function initWayforpay() {
   const buttons = document.querySelectorAll("[data-wfp-pay]");
   if (!buttons.length) return;
-
-  if (typeof window.Wayforpay !== "function") {
-    // eslint-disable-next-line no-console
-    console.warn(
-      "[wayforpay] pay-widget.js hasn't loaded (blocked, offline, or removed from index.html) - test-pay buttons are inert.",
-    );
-    return;
-  }
 
   buttons.forEach((button) => {
     button.addEventListener("click", (e) => {
@@ -232,4 +280,6 @@ export function initWayforpay() {
       payWith(button);
     });
   });
+
+  showReturnStatus();
 }
