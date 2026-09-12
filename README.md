@@ -35,11 +35,12 @@ forms only run browser validation (see `src/js/widgets/forms.js`) — point
 `.github/workflows/deploy.yml` builds and deploys on every push to `master`
 (and can be re-run by hand from the Actions tab). One-time setup on GitHub:
 **Settings → Pages → Source → GitHub Actions**. The site is served on the
-custom domain **makorishko.yoga** (configured in Settings → Pages → Custom
-domain, and on the DNS side at the registrar — not part of this repo).
+custom subdomain **postpartum.makorishko.yoga** (configured in Settings →
+Pages → Custom domain, and on the DNS side at the registrar — not part of
+this repo).
 
-Because it's on a custom domain, it serves from the domain root, not a
-`/<repo-name>/` subpath — `vite.config.js`'s `base: "/"` reflects that. Every
+Because it's on a custom (sub)domain, it serves from that domain's root, not
+a `/<repo-name>/` subpath — `vite.config.js`'s `base: "/"` reflects that. Every
 root-absolute asset reference in this project (`/images/...`, `/fonts/...`,
 the favicon, the CSS/JS bundle) depends on `base` matching wherever the site
 is actually mounted, or everything 404s — Vite rewrites these at build time,

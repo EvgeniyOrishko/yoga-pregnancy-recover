@@ -7,14 +7,14 @@ const root = dirname(fileURLToPath(import.meta.url));
 const partials = resolve(root, "src/partials");
 
 export default defineConfig({
-  // Served on a custom domain (makorishko.yoga) at the domain root, not
-  // under /<repo-name>/ - a custom domain always serves from /, regardless
-  // of whether GitHub Pages is a project or user repo. Every asset reference
-  // in this project is a root-absolute path (/images/..., /fonts/..., etc.),
-  // so base has to match wherever the site is actually mounted, or every
-  // image/video/font 404s. If you ever drop the custom domain and go back to
-  // the default <user>.github.io/<repo-name>/ URL, set this back to
-  // "/yoga-pregnancy-recover/".
+  // Served on a custom (sub)domain (postpartum.makorishko.yoga) at that
+  // domain's root, not under /<repo-name>/ - a custom domain always serves
+  // from /, whether it's an apex domain or a subdomain. Every asset
+  // reference in this project is a root-absolute path (/images/...,
+  // /fonts/..., etc.), so base has to match wherever the site is actually
+  // mounted, or every image/video/font 404s. If you ever drop the custom
+  // domain and go back to the default <user>.github.io/<repo-name>/ URL,
+  // set this back to "/yoga-pregnancy-recover/".
   base: "/",
 
   plugins: [
@@ -27,7 +27,7 @@ export default defineConfig({
       context: {
         site: {
           name: "Yoga DB",
-          url: "https://makorishko.yoga",
+          url: "https://postpartum.makorishko.yoga",
         },
       },
     }),
