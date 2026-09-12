@@ -30,6 +30,32 @@ GitHub Pages (see below). There is no server-side runtime and no backend: the
 forms only run browser validation (see `src/js/widgets/forms.js`) — point
 `<form action>` at a real endpoint before you rely on them.
 
+## Payments (WayForPay, test mode)
+
+The three "Купити підписку" buttons in the plans section open [WayForPay's
+checkout widget](https://wiki.wayforpay.com/en/view/852091) in **test mode**
+— `src/js/widgets/wayforpay.js`, using WayForPay's own publicly-published
+sandbox merchant (`test_merch_n1`). No cards are charged.
+
+This is the one place in the project where a "secret" is deliberately shipped
+to the browser: WayForPay's checkout requires an HMAC-MD5 `merchantSignature`
+over the order fields, normally computed with the merchant's secret key on a
+server. That's safe here specifically because `test_merch_n1`'s key is
+WayForPay's own shared sandbox credential (documented publicly, the same one
+everyone testing their integration uses) — **it is not this project's
+secret, and a real merchant account's key must never be computed client-side
+like this.** Going live means adding a small server endpoint that takes the
+order details and returns just the signature; `wayforpay.js` is written so
+that swap is one function call, not a rewrite (see the comment at its top).
+
+MD5 isn't in the browser's native `SubtleCrypto` (it only implements the SHA
+family), so `wayforpay.js` vendors a small MD5/HMAC-MD5 implementation —
+verified byte-for-byte against Node's `crypto` module (empty/short/long/
+multi-byte-UTF8 inputs, plus WayForPay's own worked example) before it
+shipped, and again end-to-end against a stubbed widget script in a real
+browser (every signature the page actually produces independently
+recomputed and matched).
+
 ## Deploying to GitHub Pages
 
 `.github/workflows/deploy.yml` builds and deploys on every push to `master`

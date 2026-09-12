@@ -426,3 +426,25 @@ body {
     padding: 1.5rem;
   }
 }
+
+/* ---- WayForPay test-mode pay buttons (plans section) ------------------- */
+.wfp-test-note {
+  color: var(--ink);
+  opacity: 0.6;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+.wfp-status {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+}
+.wfp-status[data-wfp-kind="approved"] {
+  color: var(--accent);
+}
+.wfp-status[data-wfp-kind="declined"] {
+  color: #c0392b;
+}
+.wfp-status[data-wfp-kind="pending"] {
+  color: var(--ink);
+  opacity: 0.7;
+}
