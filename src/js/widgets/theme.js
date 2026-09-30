@@ -26,7 +26,7 @@ const PALETTE = [
 ];
 
 const PRESETS = [
-  { name: "Оригінал", bg: "#faf6f0", primary: "#476b64", accent: "#ba6562" },
+  { name: "Оригінал", bg: "#faf6f0", primary: "#2e4a5f", accent: "#e3c0ad" },
   { name: "Лагуна", bg: "#f8efde", primary: "#2d8ba0", accent: "#e3c0ad" },
   { name: "Морське скло", bg: "#f8efde", primary: "#2e4a5f", accent: "#96e0d2" },
   { name: "Персик", bg: "#e3c0ad", primary: "#2e4a5f", accent: "#2d8ba0" },

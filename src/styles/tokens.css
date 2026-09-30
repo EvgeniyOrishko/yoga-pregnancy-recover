@@ -7,14 +7,14 @@
   /* The three colours the theme switcher edits (widgets/theme.js). Everything
      below is derived from them, so any mix stays consistent. */
   --bg: #faf6f0;
-  --primary: #476b64;
-  --accent: #ba6562;
+  --primary: #2e4a5f;
+  --accent: #e3c0ad;
 
   /* Text colours the switcher picks for readability (dark text on light
      colours and the other way round). */
   --ink: #383530;
   --on-primary: #faf6f0;
-  --on-accent: #faf6f0;
+  --on-accent: #23292d;
   --card: #fff;
   --light: #faf6f0; /* text over photos; photos are always dark-dimmed */
 
