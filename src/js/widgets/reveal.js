@@ -1,6 +1,6 @@
 // Fade/slide elements into place the first time they cross into the
-// viewport. Replaces Webflow's IX2 scroll interactions - the visual states
-// (.reveal / .reveal.is-visible) live in src/styles/custom.css.
+// viewport. The visual states (.reveal / .reveal.is-visible) live in
+// src/styles/base.css.
 export function initReveal() {
   const targets = document.querySelectorAll(".reveal");
   if (!targets.length) return;
@@ -18,7 +18,7 @@ export function initReveal() {
         observer.unobserve(entry.target);
       }
     },
-    { threshold: 0.15, rootMargin: "0px 0px -10% 0px" },
+    { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
   );
 
   targets.forEach((el) => observer.observe(el));

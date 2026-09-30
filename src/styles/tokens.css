@@ -1,0 +1,91 @@
+/* Design tokens. Colors and type scale come from the Serena template; the
+   size variables step down at the template's two breakpoints:
+     desktop  >= 1200px
+     tablet    810 - 1199px
+     mobile   <= 809px                                                      */
+:root {
+  /* The three colours the theme switcher edits (widgets/theme.js). Everything
+     below is derived from them, so any mix stays consistent. */
+  --bg: #faf6f0;
+  --primary: #476b64;
+  --accent: #ba6562;
+
+  /* Text colours the switcher picks for readability (dark text on light
+     colours and the other way round). */
+  --ink: #383530;
+  --on-primary: #faf6f0;
+  --on-accent: #faf6f0;
+  --card: #fff;
+  --light: #faf6f0; /* text over photos; photos are always dark-dimmed */
+
+  /* Names the stylesheets use. */
+  --cream: var(--bg);
+  --green: var(--primary);
+  --green-dark: color-mix(in srgb, var(--primary) 80%, #000);
+  --coral: var(--accent);
+  --coral-hover: color-mix(in srgb, var(--accent) 88%, #000);
+  --sand: color-mix(in srgb, var(--bg) 88%, var(--ink));
+  --sand-btn: color-mix(in srgb, var(--bg) 92%, var(--ink));
+  --line: color-mix(in srgb, var(--bg) 82%, var(--ink));
+  --ink-soft: color-mix(in srgb, var(--ink) 86%, transparent);
+  --muted: color-mix(in srgb, var(--ink) 74%, transparent);
+  --question: var(--ink);
+  --glass: color-mix(in srgb, var(--bg) 90%, var(--ink));
+
+  --font-display: "Cormorant Garamond", "Times New Roman", serif;
+  --font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-script: "Caveat", cursive;
+
+  --page-max: 1440px;
+  --gutter: 80px;
+  --section-y: 128px;
+  --stack-gap: 64px;
+  --curve: 155px;
+  --nav-inset: 40px;
+
+  --fs-display: 108px;
+  --fs-h2: 81px;
+  --fs-philosophy: 68.4px;
+  --fs-faq: 54px;
+  --fs-lead: 18px;
+  --fs-body: 15.3px;
+  --fs-btn: 15.75px;
+  --fs-eyebrow: 12.24px;
+  --fs-card-title: 26.1px;
+  --fs-post-feature: 43.2px;
+  --fs-question: 18px;
+}
+
+@media (max-width: 1199.98px) {
+  :root {
+    --gutter: 40px;
+    --section-y: 96px;
+    --stack-gap: 48px;
+    --curve: 90px;
+    --fs-display: 76.8px;
+    --fs-h2: 57.6px;
+    --fs-philosophy: 48.64px;
+    --fs-faq: 38.4px;
+    --fs-lead: 16px;
+    --fs-body: 13.6px;
+    --fs-btn: 14px;
+    --fs-eyebrow: 10.88px;
+    --fs-card-title: 23.2px;
+    --fs-post-feature: 30.72px;
+    --fs-question: 16px;
+  }
+}
+
+@media (max-width: 809.98px) {
+  :root {
+    --gutter: 24px;
+    --section-y: 80px;
+    --curve: 32px;
+    --nav-inset: 8px;
+    --fs-display: 61.44px;
+    --fs-h2: 46.08px;
+    --fs-philosophy: 38.88px;
+    --fs-faq: 30.72px;
+    --fs-post-feature: 24.64px;
+  }
+}

@@ -26,7 +26,7 @@ export default defineConfig({
       // Values available inside partials and index.html as {{ site.name }} etc.
       context: {
         site: {
-          name: "Yoga DB",
+          name: "Yoga",
           url: "https://postpartum.makorishko.yoga",
         },
       },
@@ -48,6 +48,8 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
+    host: true,
+
   },
 
   build: {

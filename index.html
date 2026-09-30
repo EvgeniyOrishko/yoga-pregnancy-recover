@@ -1,64 +1,142 @@
 <!doctype html>
-<html lang="uk">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1" name="viewport" />
 
-    <!-- Set the color theme before first paint so switching pages / reloading
-         never flashes the light theme first. Mirrors src/js/widgets/theme.js. -->
-    <script>
-      (function () {
-        try {
-          var theme = localStorage.getItem("yoga-theme");
-          if (theme === "dark" || theme === "blue") {
-            document.documentElement.setAttribute("data-theme", theme);
-          }
-        } catch (e) {}
-      })();
-    </script>
-
-    <!-- SEO. This is the whole point of staying on plain HTML: every tag below and
-         every section in <main> is in the source that crawlers fetch - nothing is
-         rendered client-side. Fill these in for your own site. -->
-    <title>Yoga DB</title>
-    <meta name="description" content="" />
+    <!-- SEO. Every tag below and every section in <main> is in the source that
+         crawlers fetch - nothing is rendered client-side. -->
+    <title>Olga Orishko - Wellness &amp; Yoga Studio</title>
+    <meta
+      name="description"
+      content="A warm space to breathe deeply, move mindfully, and return to yourself. Class listings, studio, reviews and everything you need to book your first yoga class."
+    />
     <link rel="canonical" href="{{ site.url }}/" />
 
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Yoga DB" />
-    <meta property="og:description" content="" />
+    <meta property="og:title" content="Olga Orishko - Wellness &amp; Yoga Studio" />
+    <meta
+      property="og:description"
+      content="A warm space to breathe deeply, move mindfully, and return to yourself."
+    />
     <meta property="og:url" content="{{ site.url }}/" />
+    <meta property="og:image" content="{{ site.url }}/images/og-image.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Yoga DB" />
+    <meta name="twitter:title" content="Olga Orishko - Wellness &amp; Yoga Studio" />
+    <meta name="twitter:image" content="{{ site.url }}/images/og-image.jpg" />
 
-    <link href="/favicon.jpg" rel="shortcut icon" type="image/x-icon" />
-    <link href="/apple-touch-icon.jpg" rel="apple-touch-icon" />
+    <link href="/favicon.png" rel="icon" type="image/png" />
+    <link href="/favicon.png" rel="apple-touch-icon" />
 
+    <script>
+      document.documentElement.classList.add("js");
+    </script>
+
+    <!-- Restore the colour theme picked in the header switcher (saved by
+         widgets/theme.js as ready-made CSS variables) before first paint. -->
+    <script>
+      try {
+        var saved = JSON.parse(localStorage.getItem("site-theme"));
+        if (saved && saved.vars) {
+          for (var k in saved.vars) document.documentElement.style.setProperty(k, saved.vars[k]);
+        }
+      } catch (e) {}
+    </script>
+
+    <link rel="preload" href="/fonts/cormorant-300.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/src/styles/main.css" />
   </head>
 
-  <body class="body">
+  <body>
+    <!-- prettier-ignore -->
+    {{> emblem-sprite }}
+
+    <!-- prettier-ignore -->
+    {{> loader }}
+
     <!-- prettier-ignore -->
     {{> header }}
 
     <!-- prettier-ignore -->
-    <main data-w-id="26d559eb-5ca9-1f0c-2838-abcee495c949" class="main">
-      {{> sections/hero }}
-      {{> sections/sessions }}
-      {{> sections/experts }}
-      {{> sections/instructors }}
+    <main>
+      <!-- TEMP hero preview: open /?hero=a|b|c|d|e|f|g (default a). Delete the wrappers,
+           the two unused variants and the script below once one is picked. -->
+      <div data-hero="a">{{> sections/hero }}</div>
+      <div data-hero="b">{{> sections/hero-split }}</div>
+      <div data-hero="c">{{> sections/hero-orbit }}</div>
+      <div data-hero="d">{{> sections/hero-green }}</div>
+      <div data-hero="e">{{> sections/hero-stack }}</div>
+      <div data-hero="f">{{> sections/hero-float }}</div>
+      <div data-hero="g">{{> sections/hero-collage }}</div>
+      <div data-hero="h">{{> sections/hero-poster }}</div>
+      {{> sections/philosophy }}
+      {{> sections/studio }}
+      {{> sections/classes }}
       {{> sections/reviews }}
-      {{> sections/journey }}
-      {{> sections/plans }}
-      {{> sections/timetable }}
-      {{> sections/contact }}
+      {{> sections/journal }}
+      {{> sections/faq }}
     </main>
 
     <!-- prettier-ignore -->
     {{> footer }}
-    <!-- prettier-ignore -->
-    {{> modal }}
+
+    <!-- TEMP hero preview: keep only the chosen variant in the DOM (the variant CSS
+         keys off :has(), so the others must be removed, not hidden) and add a switcher. -->
+    <script>
+      (function () {
+        var pick = new URLSearchParams(location.search).get("hero") || "h";
+        var bar = document.createElement("nav");
+        bar.setAttribute("aria-label", "Hero variants");
+        bar.style.cssText =
+          "position:fixed;left:50%;bottom:12px;z-index:100;display:flex;gap:6px;padding:6px;" +
+          "border-radius:99px;background:rgba(56,53,48,.85);transform:translateX(-50%)";
+        document.querySelectorAll("[data-hero]").forEach(function (el) {
+          var id = el.getAttribute("data-hero");
+          var a = document.createElement("a");
+          a.href = "?hero=" + id;
+          a.textContent = id.toUpperCase();
+          a.style.cssText =
+            "min-width:36px;padding:10px 0;border-radius:99px;text-align:center;font:600 14px sans-serif;" +
+            "color:" + (id === pick ? "#383530" : "#faf6f0") + ";background:" + (id === pick ? "#faf6f0" : "transparent");
+          bar.appendChild(a);
+          if (id !== pick) el.remove();
+        });
+        document.body.appendChild(bar);
+      })();
+    </script>
 
     <script type="module" src="/src/js/main.js"></script>
   </body>
 </html>
+
+
+Онови копірайт на лендінгу makoiishko.yoga. Знайди відповідні текстові рядки
+(hero-секція, секцію "кому підходить", секцію результату) і заміни:
+
+1. Hero заголовок:
+БУЛО: "Return to yourself."
+СТАЛО: "Знову в мирі"
+
+2. Hero підзаголовок:
+БУЛО: "A warm space to..."
+СТАЛО: "Авторський курс по відновленню після вагітності і пологів з 1-го дня"
+
+
+<!--4. Секція "Кому підходить" — заголовок і буллети:-->
+<!--Заголовок: "Кому підходить цей курс"-->
+<!--Підходить мамі, яка:-->
+<!-- - не знає з чого почати відновлення-->
+<!-- - боїться [уточнити]-->
+<!-- - відчуває втому і брак зв'язку з власним тілом-->
+<!-- - відчуває бажання розібратись у [уточнити]-->
+
+<!--5. Секція результату (Our Studio / Результат):-->
+<!--Заголовок: "Наш результат"-->
+<!-- - повернення стабільності-->
+<!-- - відновлення відчуття власного тіла-->
+<!-- - стабілізація [дихання/стану]-->
+
+<!--Збережи існуючу верстку, класи та компоненти — зміни лише текстовий контент.-->
+<!--Якщо якийсь рядок не знайдеш точним пошуком — знайди найближчий за змістом-->
+<!--і онови саме його, не створюй новий блок.-->

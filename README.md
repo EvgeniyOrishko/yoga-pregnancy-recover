@@ -1,14 +1,14 @@
-# Yoga site — static HTML
+# Serena Yoga — static HTML
 
-Started as a Webflow export; now a plain HTML/CSS/vanilla-JS site with no
-framework and no Webflow dependency — split into editable partials and wired
-to Vite for hot reload. The shipped page is fully-rendered HTML, so every word
-is in the source a crawler fetches.
+A single-page yoga studio site built from the "Serena" Framer template: plain
+HTML/CSS/vanilla JS, no framework and no Framer runtime, split into editable
+partials and wired to Vite for hot reload. The shipped page is fully-rendered
+HTML, so every word is in the source a crawler fetches. The original template
+export is archived in `_original/new.serena.html`.
 
 ## Requirements
 
-Node 20.19+ (`.nvmrc` pins 22). Your shell's default `node` is 16, which Vite
-will reject — run `nvm use` in this directory first.
+Node 20.19+ (`.nvmrc` pins 22). Run `nvm use` in this directory first.
 
 ```bash
 nvm use
@@ -17,8 +17,8 @@ npm install
 
 ## Commands
 
-| Command                | What it does                                              |
-| ---------------------- | --------------------------------------------------------- |
+| Command                | What it does                                               |
+| ---------------------- | ---------------------------------------------------------- |
 | `npm run dev`          | Dev server on http://localhost:3000 with hot reload        |
 | `npm run build`        | Static site into `dist/`                                   |
 | `npm run preview`      | Serve `dist/` locally, to check the build before deploying |
@@ -26,223 +26,52 @@ npm install
 | `npm run format:check` | Fails if anything is unformatted (use in CI)               |
 
 Deploying is copying `dist/` to any static host — Netlify, Vercel, S3, nginx,
-GitHub Pages (see below). There is no server-side runtime and no backend: the
-forms only run browser validation (see `src/js/widgets/forms.js`) — point
-`<form action>` at a real endpoint before you rely on them.
-
-## Payments (WayForPay, test mode)
-
-The three "Купити підписку" buttons in the plans section submit a real
-`<form>` to [WayForPay's hosted checkout
-page](https://wiki.wayforpay.com/en/view/852102) in **test mode** —
-`src/js/widgets/wayforpay.js`, using WayForPay's own publicly-published
-sandbox merchant (`test_merch_n1`), for a trivial fixed 0.50 test amount
-(not yet the real plan price — see the comment at the top of that file).
-No cards are charged.
-
-This posts to WayForPay's own hosted page rather than loading their embedded
-`pay-widget.js` modal, and that's deliberate: Apple Pay / Google Pay showed
-up nowhere in the widget on a real iPhone. `paymentSystems` — the parameter
-that lists which methods to offer (`card;applePay;googlePay`) — is only
-documented for this hosted-page flow, and Apple Pay's own JS API needs to run
-in the top-level document, which an iframe-based widget modal isn't. The form
-sends `paymentSystems: "card;applePay;googlePay"` explicitly. Whether they
-actually appear still depends on the visiting device (Safari + Apple Wallet,
-or Chrome + a saved Google Pay card) and on WayForPay having them enabled for
-the merchant account — nothing enforceable from static site code, and
-undocumented for the `test_merch_n1` sandbox specifically.
-
-Because checkout is now a real page you leave and WayForPay redirects back
-from (`returnUrl`), there's no live approved/declined/pending callback the
-way the widget had one — confirming the *actual* payment outcome needs a
-server-side `serviceUrl` webhook, which this static site doesn't have. The
-page only shows "you're back from checkout," not a real status.
-
-This is the one place in the project where a "secret" is deliberately shipped
-to the browser: WayForPay's checkout requires an HMAC-MD5 `merchantSignature`
-over the order fields, normally computed with the merchant's secret key on a
-server. That's safe here specifically because `test_merch_n1`'s key is
-WayForPay's own shared sandbox credential (documented publicly, the same one
-everyone testing their integration uses) — **it is not this project's
-secret, and a real merchant account's key must never be computed client-side
-like this.** Going live means adding a small server endpoint that takes the
-order details and returns just the signature; `wayforpay.js` is written so
-that swap is one function call, not a rewrite (see the comment at its top).
-
-MD5 isn't in the browser's native `SubtleCrypto` (it only implements the SHA
-family), so `wayforpay.js` vendors a small MD5/HMAC-MD5 implementation —
-verified byte-for-byte against Node's `crypto` module (empty/short/long/
-multi-byte-UTF8 inputs, plus WayForPay's own worked example) before it
-shipped, and again end-to-end in a real browser against the actual `<form>`
-POST body the page produces (every field present, signature independently
-recomputed and matched, `paymentSystems`/amount/`returnUrl` all correct).
-
-## Deploying to GitHub Pages
-
-`.github/workflows/deploy.yml` builds and deploys on every push to `master`
-(and can be re-run by hand from the Actions tab). One-time setup on GitHub:
-**Settings → Pages → Source → GitHub Actions**. The site is served on the
-custom subdomain **postpartum.makorishko.yoga** (configured in Settings →
-Pages → Custom domain, and on the DNS side at the registrar — not part of
-this repo).
-
-Because it's on a custom (sub)domain, it serves from that domain's root, not
-a `/<repo-name>/` subpath — `vite.config.js`'s `base: "/"` reflects that. Every
-root-absolute asset reference in this project (`/images/...`, `/fonts/...`,
-the favicon, the CSS/JS bundle) depends on `base` matching wherever the site
-is actually mounted, or everything 404s — Vite rewrites these at build time,
-both in the HTML and inside `base.css`'s `url(...)`s. If you ever drop the
-custom domain and go back to the default
-`<user>.github.io/yoga-pregnancy-recover/` URL, set `base` back to
-`"/yoga-pregnancy-recover/"` (and `site.url` alongside it).
+GitHub Pages (see `.github/workflows/deploy.yml`). There is no backend: the
+newsletter form only runs browser validation (see `src/js/widgets/forms.js`) —
+point `<form action>` at a real endpoint before you rely on it.
 
 ## Layout
 
 ```
-index.html                    page shell: <head>, SEO tags, script order, includes
-src/
-  partials/
-    header.html               nav + logo + burger
-    footer.html                sticky footer
-    modal.html                 contact modal (see "Known gaps" below)
-    sections/                  one file per <section>, in page order
-      hero.html
-      sessions.html
-      experts.html
-      instructors.html
-      reviews.html
-      journey.html
-      plans.html
-      timetable.html
-      contact.html
-  styles/
-    main.css                  entry; imports the two below in order
-    base.css                  extracted/renamed layout CSS - see its own note below
-    custom.css                 your overrides + all the widget CSS (reveal, modal,
-                                sliders, tabs, lightbox, nav) go here
-  js/
-    main.js                    wires up every widget below
-    widgets/
-      reveal.js                fade-in-on-scroll (IntersectionObserver)
-      nav.js                   mobile burger menu
-      modal.js                 contact modal + per-instructor bio modals
-      heroSlider.js             hero background autoplay crossfade
-      journeySlider.js          journey section manual carousel
-      tabs.js                   weekday tabs (timetable section)
-      reviewLightbox.js         review-video popup (parses embedded Vimeo JSON)
-      bgVideoControl.js         play/pause button on the one manually-controlled video
-      forms.js                  submit handling (validation + done/fail state)
-public/                       copied to dist/ verbatim, served from /
-  images/                     every <img>/srcset/background-image asset
-  videos/                     background-video mp4/webm + poster frames
-  fonts/                      Playfair Display + Poppins, self-hosted woff2
-_original/                    the untouched downloaded page, for diffing
+index.html                 head/SEO tags + the section order
+src/partials/
+  header.html footer.html  fixed nav + dropdown; CTA banner + footer
+  logo.html spark.html     inline SVGs (use currentColor)
+  chevron.html social.html small shared pieces
+  sections/                hero, philosophy, studio, classes, reviews, journal, faq
+src/styles/
+  fonts.css tokens.css     @font-face; colors + type scale per breakpoint
+  base.css components.css  reset/reveal; buttons, type, arrows, dots
+  sections.css             layout of each section
+src/js/widgets/            nav, reveal, expand, carousel, marquee, accordion, forms
+public/images, public/fonts  self-hosted assets (served from /)
 ```
 
-### How the includes work
+Breakpoints (from the template): desktop ≥ 1200px, tablet 810–1199px,
+mobile ≤ 809px. Every size that changes between them is a variable in
+`src/styles/tokens.css`.
 
-`vite-plugin-handlebars` registers every `.html` under `src/partials/` as a
-partial named by its path:
+Every `.html` under `src/partials` is registered as a Handlebars partial named
+by its path: `src/partials/sections/hero.html` is `{{> sections/hero }}`.
+Site-wide values (`{{ site.url }}`) come from `vite.config.js`.
 
-```html
-{{> header }}
-{{> sections/hero }}
-```
+## What the scripts do
 
-Shared values live in `context` in `vite.config.js` and are read as
-`{{ site.url }}`. To add a section: drop a file in `src/partials/sections/` and
-add one `{{> sections/name }}` line to `index.html`.
+- **nav** — the header is transparent over the hero and becomes a frosted pill
+  after scrolling (`.is-scrolled`); below 1200px the burger toggles the dropdown.
+- **expand** — the studio card starts inset with rounded corners and grows to
+  full bleed as it scrolls into view (`--expand`, 0 to 1).
+- **carousel** — the studio slideshow (`data-carousel="slides"`: dots, arrows,
+  swipe) and the class cards (`data-carousel="scroll"`: scroll-snap row that the
+  arrows and mouse-drag move).
+- **marquee** — the reviews row loops forever; hover pauses it.
+- **accordion** — the FAQ, with `aria-expanded` on each button.
+- **reveal** — fade/slide sections in on first view (`.reveal`).
 
-The `{{> … }}` lines carry `<!-- prettier-ignore -->` markers. Prettier otherwise
-reflows them across lines, which works but is unreadable — leave the markers in.
+## Deploying to GitHub Pages
 
-### Hot reload
-
-- **CSS** — `src/styles/custom.css` hot-swaps with no page reload.
-- **Partials / index.html** — the browser reloads. Partials are inlined at
-  transform time, so Vite can't see the dependency on its own; the
-  `reload-on-partial-change` plugin in `vite.config.js` is what makes this work.
-  Delete it and section edits will silently do nothing.
-
-## History
-
-This started as a Webflow export (saved from a Google-Translated tab, which
-added its own mess on top — see the first history entry). It has since been
-fully de-Webflow-ed: no Webflow-hosted assets, no `webflow.js`/jQuery runtime,
-no `w-*` framework classes, no `data-wf-*` attributes. Every interactive
-behavior that Webflow's runtime used to provide (scroll-reveal, the burger
-menu, both sliders, the weekday tabs, the review lightbox, the video
-play/pause button, form submit handling) is now the plain JS in
-`src/js/widgets/`.
-
-**Reference point:** the git tag `webflow-reference` is the last commit before
-this rewrite — still Webflow-dependent (`webflow.js` + jQuery vendored,
-`data-wf-*` on `<html>`, `w-*` classes throughout), but otherwise identical
-(same partials/HMR setup, same localized assets). `git diff webflow-reference`
-shows the entire rewrite as one diff; `git checkout webflow-reference` gets
-you back to that state if anything here needs unwinding.
-
-1. **Split & localize** (original Webflow-runtime version, tagged
-   `webflow-reference`):
-   - Stripped 1042 `<font dir="auto">` wrappers, the `#goog-gt-tt` panel and
-     the translate stylesheet — artifacts of saving a Google-Translated page.
-   - Removed the Webflow badge and the runtime-injected `w-mod-js w-mod-ix
-     translated-ltr` classes on `<html>`.
-   - Downloaded every image, background video (mp4/webm + poster frame), and
-     the two webfonts into `public/images|videos|fonts`, and rewrote every
-     reference to them.
-   - Split the single 240 KB file into the partials above and wired up Vite.
-2. **Full Webflow removal** (this state):
-   - `src/styles/base.css` replaces the vendored `webflow.css`: every rule
-     webflow.css defined for a class this project actually uses, kept and
-     renamed (`.w-slider` → `.wg-slider`, etc.), with everything else (grid
-     columns, the nav-dropdown/checkbox/radio/file-upload widgets, the
-     Webflow icon font, ~140 unused classes total) cut. See the comment at
-     the top of the file for exactly what that extraction covered.
-   - `webflow.js` and jQuery are gone; every behavior they drove is now the
-     plain JS in `src/js/widgets/` (see the file list above).
-   - `data-wf-*` attributes removed (`<html>`, forms' `data-wf-page-id` /
-     `data-wf-element-id` — the latter is worth calling out: those carried
-     the *real* Webflow site/page IDs, so a submitted form would have quietly
-     POSTed to the original template author's Webflow account, not yours).
-   - The literal word "Webflow" is gone from everything served: the page
-     title, the footer's platform-credit line, and a dead link to
-     `yoga-db.webflow.io/404`. Verify after a build with
-     `grep -ri webflow dist/`.
-
-`_original/index.original.html` is the very first untouched download, if you
-ever need to compare against the true original.
-
-## Known gaps / simplifications
-
-Ported everything that was reachable and visibly used. A few things were
-deliberately simplified rather than byte-for-byte reproduced:
-
-- **The contact modal (`modal.html`) has no button wired to open it** — that
-  was already true in the original download (I checked empirically: none of
-  the header/hero/plans CTAs opened it). It's fully functional
-  (`src/js/widgets/modal.js` handles any `.modal`) if you add a trigger.
-- **One decorative parallax image** (`.experts-image`, a `translate3d(0,
-  -10%, 0)` inline style) used to shift slightly as you scrolled past it via
-  a Webflow scroll-linked interaction. It's left as a static -10% offset now
-  rather than reimplemented as a scroll listener.
-- **The burger menu is one button, not two.** The original had a second,
-  fully transparent `.burger-close` button stacked on top for hit-testing;
-  it carried no visible content of its own, so it's gone and `.burger` alone
-  now toggles open/closed (see `src/js/widgets/nav.js`).
-- Code comments in `src/js/widgets/` and this README mention "Webflow" as
-  historical context (why a piece of JSON is shaped the way it is, etc.) —
-  that's developer documentation, not shipped output; none of it reaches
-  `dist/`.
-
-## Notes
-
-- `src/styles/base.css` is prettier-ignored (it's a generated extraction, see
-  its own header comment) and not meant to be hand-edited — put your changes
-  in `custom.css` instead.
-- The build minifies CSS and JS but leaves `dist/index.html` readable, so you can
-  open it and see exactly what a crawler gets. Indentation costs ~5 kB gzipped;
-  add `vite-plugin-html` if you want it minified too.
-- `data-w-id` attributes are still on many elements. They don't do anything by
-  themselves anymore (nothing reads them) — they're just inert leftover
-  identifiers from the export, harmless to keep or remove.
+`.github/workflows/deploy.yml` builds on every push to `master` and publishes
+`dist/`. `vite.config.js` sets `base: "/"` for the custom domain
+(`postpartum.makorishko.yoga`); every asset path in the project is
+root-absolute, so if you go back to `<user>.github.io/<repo-name>/`, set `base`
+to that path.

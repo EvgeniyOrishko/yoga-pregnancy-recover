@@ -1,35 +1,35 @@
-// Mobile nav burger toggle. Replaces the original two-button (.burger /
-// .burger-close) IX2 click interaction with one accessible toggle button;
-// the hamburger->X animation is plain CSS on .burger.is-open (custom.css).
+// Header behaviour: on desktop the bar is transparent over the hero and turns
+// into a frosted pill once the page scrolls (.is-scrolled); below 1200px the
+// burger toggles the dropdown menu (.is-open). All the visuals are CSS.
+const DESKTOP = window.matchMedia("(min-width: 1200px)");
+
 export function initNav() {
-  const burger = document.querySelector(".burger");
-  const nav = document.querySelector(".header-navigation");
-  if (!burger || !nav) return;
+  const header = document.querySelector(".site-header");
+  const burger = header?.querySelector(".burger");
+  if (!header || !burger) return;
 
-  burger.setAttribute("aria-expanded", "false");
-  burger.setAttribute("aria-controls", "header-navigation");
-  nav.id = nav.id || "header-navigation";
+  const onScroll = () => header.classList.toggle("is-scrolled", window.scrollY > 40);
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
 
-  const close = () => {
-    nav.classList.remove("is-open");
-    burger.classList.remove("is-open");
-    burger.setAttribute("aria-expanded", "false");
-    burger.setAttribute("aria-label", "відкрити меню");
-  };
-  const open = () => {
-    nav.classList.add("is-open");
-    burger.classList.add("is-open");
-    burger.setAttribute("aria-expanded", "true");
-    burger.setAttribute("aria-label", "закрити меню");
+  const setOpen = (open) => {
+    header.classList.toggle("is-open", open);
+    burger.setAttribute("aria-expanded", String(open));
+    burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
   };
 
-  burger.addEventListener("click", () => {
-    (nav.classList.contains("is-open") ? close : open)();
-  });
+  burger.addEventListener("click", () => setOpen(!header.classList.contains("is-open")));
 
-  // Close after following an in-page nav link, and on Escape.
-  nav.querySelectorAll("a[href]").forEach((a) => a.addEventListener("click", close));
+  // Close after following a link, on Escape, on an outside click, and when
+  // the viewport grows into the desktop layout.
+  header
+    .querySelectorAll(".mobile-menu a")
+    .forEach((a) => a.addEventListener("click", () => setOpen(false)));
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") close();
+    if (e.key === "Escape") setOpen(false);
   });
+  document.addEventListener("click", (e) => {
+    if (!header.contains(e.target)) setOpen(false);
+  });
+  DESKTOP.addEventListener("change", () => setOpen(false));
 }

@@ -1,0 +1,287 @@
+/* ---------- Type ---------- */
+
+.display,
+.h-section,
+.h-philosophy,
+.h-faq {
+  font-family: var(--font-display);
+  color: var(--green);
+}
+
+.display {
+  font-size: var(--fs-display);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.hero .display em,
+.h-philosophy em {
+  display: block;
+}
+
+/* Keeps "first class." / "feel ready" together when a heading wraps. */
+.cta .display em,
+.h-faq em {
+  white-space: nowrap;
+}
+
+.h-section {
+  font-size: var(--fs-h2);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+}
+
+.h-philosophy {
+  font-size: var(--fs-philosophy);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.h-faq {
+  font-size: var(--fs-faq);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+em {
+  font-style: italic;
+}
+
+.eyebrow {
+  font-size: var(--fs-eyebrow);
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+
+.eyebrow--muted {
+  display: block;
+  color: var(--muted);
+}
+
+.eyebrow--light {
+  color: var(--on-primary);
+}
+
+.lead {
+  font-size: var(--fs-lead);
+  line-height: 1.7;
+}
+
+.lead--body {
+  color: var(--ink-soft);
+}
+
+.lead--light {
+  color: color-mix(in srgb, var(--on-primary) 80%, transparent);
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px 24px;
+  border: 0;
+  border-radius: 12px;
+  font-size: var(--fs-btn);
+  line-height: 1.2;
+  white-space: nowrap;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.btn--pill {
+  padding: 12px 24px;
+  border-radius: 99px;
+}
+
+.btn--coral {
+  background: var(--coral);
+  color: var(--on-accent);
+}
+
+.btn--coral:hover {
+  background: var(--coral-hover);
+}
+
+.btn--sand {
+  background: var(--sand-btn);
+  color: var(--ink);
+}
+
+.btn--sand:hover {
+  background: color-mix(in srgb, var(--sand-btn) 94%, var(--ink));
+}
+
+.btn--outline {
+  border: 1px solid var(--green);
+  background: transparent;
+  color: var(--green);
+}
+
+.btn--outline:hover {
+  background: var(--green);
+  color: var(--on-primary);
+}
+
+.chevron {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+/* ---------- Logo ---------- */
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  font-family: var(--font-display);
+  font-size: 25.2px;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--light);
+  transition: color 0.3s ease;
+}
+
+.logo__word {
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.logo__symbol {
+  width: auto;
+  height: 2.06em;
+  flex: none;
+}
+
+/* ---------- Arrows, dots (carousels) ---------- */
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 40px;
+  background-color: rgba(78, 73, 70, 0.74);
+  background-repeat: no-repeat;
+  background-position: center;
+  transform: translateY(-50%);
+  transition:
+    background-color 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.arrow:hover {
+  background-color: rgba(78, 73, 70, 0.92);
+}
+
+.arrow--prev {
+  left: 20px;
+  background-image: url("/images/arrow-left.svg");
+}
+
+.arrow--next {
+  right: 20px;
+  background-image: url("/images/arrow-right.svg");
+}
+
+.arrow[hidden] {
+  display: none;
+}
+
+.dots {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  border-radius: 50px;
+  background: rgba(0, 0, 0, 0.2);
+  transform: translateX(-50%);
+}
+
+.dots button {
+  width: 25px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: grid;
+  place-items: center;
+}
+
+.dots button::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.5;
+  transition: opacity 0.25s ease;
+}
+
+.dots button[aria-current="true"]::before {
+  opacity: 1;
+}
+
+/* ---------- Social icons ---------- */
+
+.social {
+  display: flex;
+  gap: 24px;
+}
+
+.social a {
+  display: block;
+  width: 22px;
+  height: 22px;
+  transition: opacity 0.2s ease;
+}
+
+.social a:hover {
+  opacity: 0.7;
+}
+
+.social svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Shared section heading ---------- */
+
+.section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section-head--center {
+  align-items: center;
+  text-align: center;
+}
+
+.section-head--center p:not(.eyebrow) {
+  max-width: 600px;
+}
+
+.spark {
+  width: 42px;
+  height: 56px;
+  color: var(--on-primary);
+}
